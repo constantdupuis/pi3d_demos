@@ -219,6 +219,14 @@ def check_changes():
         update = True
   return update
 
+def get_sub_directories():
+  # for root, _dirnames, filenames in os.walk(config.PIC_DIR):
+  #   print(f'root {root} dirnames {_dirnames} filenames {filenames}')
+  with os.scandir(config.PIC_DIR) as it:
+    for entry in it:
+        if not entry.name.startswith('.') and entry.is_dir():
+            print(entry.name)
+
 def get_files(dt_from=None, dt_to=None):
   # dt_from and dt_to are either None or tuples (2016,12,25)
   if dt_from is not None:
@@ -322,6 +330,7 @@ if config.LOAD_GEOLOC:
 iFiles = []
 nFi = 0
 next_pic_num = 0
+get_sub_directories()
 if config.USE_MQTT:
   try:
     import paho.mqtt.client as mqtt
