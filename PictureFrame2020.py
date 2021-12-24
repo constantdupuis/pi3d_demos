@@ -21,6 +21,7 @@ import pi3d
 import locale
 import subprocess
 import numpy as np
+import json
 
 from pi3d.Texture import MAX_SIZE
 from PIL import Image, ExifTags, ImageFilter # these are needed for getting exif data from images
@@ -223,9 +224,12 @@ def get_sub_directories():
   # for root, _dirnames, filenames in os.walk(config.PIC_DIR):
   #   print(f'root {root} dirnames {_dirnames} filenames {filenames}')
   with os.scandir(config.PIC_DIR) as it:
+    dirs = []
     for entry in it:
         if not entry.name.startswith('.') and entry.is_dir():
+            dirs.append(entry.name)
             print(entry.name)
+    return dirs
 
 def get_files(dt_from=None, dt_to=None):
   # dt_from and dt_to are either None or tuples (2016,12,25)
@@ -330,7 +334,7 @@ if config.LOAD_GEOLOC:
 iFiles = []
 nFi = 0
 next_pic_num = 0
-get_sub_directories()
+dirs = get_sub_directories()
 if config.USE_MQTT:
   try:
     import paho.mqtt.client as mqtt
@@ -357,6 +361,8 @@ if config.USE_MQTT:
       client.subscribe("{}text_refresh".format(id), qos=0) # restarts current slide showing text set above
       client.subscribe("{}brightness".format(id), qos=0) # set shader brightness
       client.publish("{}paused".format(id), payload="off", qos=0) # un-pause the slideshow on start
+      client.publish("{}subdirectories".format(id), payload=json.dumps(dirs), qos=0, retain=True) # un-pause the slideshow on start
+      
       if config.VERBOSE:
         print("Connected to MQTT broker")
 
