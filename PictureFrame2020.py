@@ -228,7 +228,7 @@ def get_sub_directories():
     for entry in it:
         if not entry.name.startswith('.') and entry.is_dir():
             dirs.append(entry.name)
-            print(entry.name)
+            #print(entry.name)
     return dirs
 
 def get_files(dt_from=None, dt_to=None):
@@ -336,9 +336,12 @@ nFi = 0
 next_pic_num = 0
 dirs = get_sub_directories()
 if config.USE_MQTT:
+  if config.VERBOSE:
+    print("Configure MQTT")
   try:
     import paho.mqtt.client as mqtt
     def on_connect(client, userdata, flags, rc):
+      global paused, subdirectory
       if config.MQTT_ID == "":
         id = ""
       else:
@@ -360,8 +363,17 @@ if config.USE_MQTT:
       client.subscribe("{}text_off".format(id), qos=0) # turn all name, date, location off
       client.subscribe("{}text_refresh".format(id), qos=0) # restarts current slide showing text set above
       client.subscribe("{}brightness".format(id), qos=0) # set shader brightness
-      client.publish("{}paused".format(id), payload="off", qos=0) # un-pause the slideshow on start
-      client.publish("{}subdirectories".format(id), payload=json.dumps(dirs), qos=0, retain=True) # un-pause the slideshow on start
+
+      if config.VERBOSE:
+        print("Publish stateq to MQTT")
+
+      client.publish("{}states/paused".format(id), payload=paused, qos=0, retain = True) # un-pause the slideshow on start
+      if subdirectory == "":
+        subdir = "none"
+      else:
+        subdir = subdirectory
+      client.publish("{}states/subdirectory".format(id), payload=subdir, qos=0, retain=True) # current image subdirectory shown
+      client.publish("{}states/subdirectories".format(id), payload=json.dumps(dirs), qos=0, retain=True) # un-pause the slideshow on start
       
       if config.VERBOSE:
         print("Connected to MQTT broker")
@@ -426,6 +438,7 @@ if config.USE_MQTT:
         refresh = True
       elif message.topic == "{}subdirectory".format(id):
         subdirectory = msg.strip()
+        client.publish("{}states/subdirectory".format(id), payload=subdirectory, qos=0, retain=True) # current image subdirectory shown
         reselect = True
       elif message.topic == "{}delete".format(id):
         f_to_delete = iFiles[pic_num].fname
