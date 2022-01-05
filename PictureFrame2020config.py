@@ -30,13 +30,13 @@ def parse_show_text(txt):
 # NB the reason that absolute paths are used here is because relative ones can lead
 #  to abiguity if the program is started automatically on boot.
 parse = argparse.ArgumentParser("start running a picture frame")
-parse.add_argument("-a", "--blur_amount",   default=12, type=float, help="larger values than 12 will increase processing load quite a bit")
+parse.add_argument("-a", "--blur_amount",   default=3, type=float, help="larger values than 12 will increase processing load quite a bit")
 parse.add_argument("-b", "--blur_edges",    default=True, type=str_to_bool, help="use blurred version of image to fill edges - will override FIT = False")
 parse.add_argument("-c", "--check_dir_tm",  default=60.0, type=float, help="time in seconds between checking if the image directory has changed")
 parse.add_argument("-d", "--verbose",       default=True, type=str_to_bool, help="show try/exception messages (True for debugging)")
-parse.add_argument("-e", "--edge_alpha",    default=0.5, type=float, help="background colour at edge. 1.0 would show reflection of image")
+parse.add_argument("-e", "--edge_alpha",    default=0.3, type=float, help="background colour at edge. 1.0 would show reflection of image")
 parse.add_argument("-f", "--fps",           default=20.0, type=float)
-parse.add_argument("-g", "--background",    default=(0.2, 0.2, 0.3, 1.0), type=str_to_tuple, help="RGBA to fill edges when fitting")
+parse.add_argument("-g", "--background",    default=(0.1, 0.2, 0.2, 1.0), type=str_to_tuple, help="RGBA to fill edges when fitting")
 parse.add_argument(      "--portrait_pairs",default=False, type=str_to_bool, help="show portrait images in pairs when possible")
 parse.add_argument("-i", "--no_files_img",  default="/home/pi/pi3d_demos/PictureFrame2020img.jpg", help="image to show if none selected")
 parse.add_argument("-j", "--blend_type",    default="blend", choices=["blend", "burn", "bump"], help="type of blend the shader can do")
